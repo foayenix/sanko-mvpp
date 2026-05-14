@@ -131,6 +131,40 @@ async function saveFormulation({ practitioner_id, source_media_id, structured, o
   return data;
 }
 
+// Returns the 10 most recent active formulations for a practitioner (PRD §5.4)
+async function listFormulations(practitioner_id, limit = 10) {
+  const { data, error } = await getClient()
+    .from('formulations')
+    .select('id, short_code, condition_local, condition_std, created_at, source_media_id')
+    .eq('practitioner_id', practitioner_id)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+// Returns one full formulation row plus its source media (for voice replay)
+async function getFormulation(id) {
+  const { data, error } = await getClient()
+    .from('formulations')
+    .select('*, media:source_media_id(storage_path, transcript)')
+    .eq('id', id)
+    .single();
+  if (error && error.code !== 'PGRST116') throw new Error(error.message);
+  return data ?? null;
+}
+
+// Creates a signed URL (1-hour expiry) for a voice note stored in Supabase Storage
+async function getSignedMediaUrl(storagePath, expiresIn = 3600) {
+  const { data, error } = await getClient()
+    .storage
+    .from('sanko-media')
+    .createSignedUrl(storagePath, expiresIn);
+  if (error) throw new Error(error.message);
+  return data.signedUrl;
+}
+
 module.exports = {
   getClient,
   logEvent,
@@ -144,4 +178,7 @@ module.exports = {
   saveMedia,
   uploadVoiceNote,
   saveFormulation,
+  listFormulations,
+  getFormulation,
+  getSignedMediaUrl,
 };

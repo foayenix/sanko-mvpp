@@ -112,6 +112,7 @@ function resumeSession(session, message, from, practitioner) {
     case 'first_contact': return firstContact.resume(session, message, from, practitioner);
     case 'guided_doc':    return guidedDoc.resume(session, message, from, practitioner);
     case 'express_doc':   return expressDoc.resume(session, message, from, practitioner);
+    case 'browse_vault':  return browseVault.resume(session, message, from, practitioner);
     case 'edit':          return editFormulation.resume(session, message, from, practitioner);
     default:
       console.warn('Unknown session flow:', session.flow);

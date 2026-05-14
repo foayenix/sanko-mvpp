@@ -330,3 +330,91 @@ describe('W5 — plant lookup expanded', () => {
     assert.equal(lookup('orogbo').botanical, 'Garcinia kola');
   });
 });
+
+// ─── W6 — Flow 4 browse vault (unit, no real APIs) ───────────────────────────
+
+describe('W6 — browseVault module exports', () => {
+  const bv = require('../src/flows/browseVault');
+  it('exports handle, resume, and formatters', () => {
+    assert.equal(typeof bv.handle, 'function');
+    assert.equal(typeof bv.resume, 'function');
+    assert.equal(typeof bv._formatList, 'function');
+    assert.equal(typeof bv._formatDetailCard, 'function');
+  });
+});
+
+describe('W6 — _formatList', () => {
+  const { _formatList } = require('../src/flows/browseVault');
+
+  it('renders a numbered list with short_code and condition', () => {
+    const formulations = [
+      { id: 'a1', short_code: 'FM-00001', condition_std: 'Malaria', condition_local: 'iba' },
+      { id: 'a2', short_code: 'FM-00002', condition_std: null, condition_local: 'efun' },
+      { id: 'a3', short_code: 'FM-00003', condition_std: null, condition_local: null },
+    ];
+    const text = _formatList(formulations);
+    assert.ok(text.includes('1.'));
+    assert.ok(text.includes('FM-00001'));
+    assert.ok(text.includes('Malaria'));
+    assert.ok(text.includes('2.'));
+    assert.ok(text.includes('FM-00002'));
+    assert.ok(text.includes('efun'));
+    assert.ok(text.includes('FM-00003'));
+    assert.ok(text.includes('Unknown condition'));
+  });
+
+  it('returns empty string for empty list', () => {
+    assert.equal(_formatList([]), '');
+  });
+});
+
+describe('W6 — _formatDetailCard', () => {
+  const { _formatDetailCard } = require('../src/flows/browseVault');
+
+  it('renders a complete formulation detail card', async () => {
+    const f = {
+      short_code:      'FM-00001',
+      condition_std:   'Malaria',
+      condition_local: 'iba',
+      icd_11_code:     '1F40',
+      plants: [
+        { local_name: 'dongoyaro', botanical: 'Azadirachta indica', quantity_normalised: '10 leaves' },
+      ],
+      preparation:     { method: 'decoction', duration_minutes: 20, medium: 'water' },
+      dosage:          { amount: '1 cup', frequency: 'twice daily', duration_days: 5 },
+      notes:           'Avoid in pregnancy',
+      confidence_score: 0.91,
+      created_at:      '2026-05-01T10:00:00Z',
+      media:           null,
+    };
+    const card = await _formatDetailCard(f);
+    assert.ok(card.includes('FM-00001'));
+    assert.ok(card.includes('Malaria'));
+    assert.ok(card.includes('1F40'));
+    assert.ok(card.includes('dongoyaro'));
+    assert.ok(card.includes('Azadirachta indica'));
+    assert.ok(card.includes('decoction'));
+    assert.ok(card.includes('twice daily'));
+    assert.ok(card.includes('Avoid in pregnancy'));
+    assert.ok(card.includes('91%'));
+    assert.ok(card.includes('edit FM-00001'));
+  });
+
+  it('omits voice note line when no source media', async () => {
+    const f = {
+      short_code: 'FM-00002', condition_std: 'Fever', condition_local: null,
+      icd_11_code: null, plants: [], preparation: null, dosage: null,
+      notes: null, confidence_score: null, created_at: '2026-05-01T10:00:00Z', media: null,
+    };
+    const card = await _formatDetailCard(f);
+    assert.ok(!card.includes('🔊'));
+  });
+});
+
+describe('W6 — vault selection number validation', () => {
+  it('parseInt catches non-numeric input', () => {
+    assert.ok(isNaN(parseInt('abc', 10)));
+    assert.ok(isNaN(parseInt('', 10)));
+    assert.equal(parseInt('3', 10), 3);
+  });
+});
