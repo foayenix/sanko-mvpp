@@ -712,5 +712,355 @@
     "common_english": "Wild Fig",
     "parts_commonly_used": ["bark", "latex"],
     "typical_preparations": ["decoction", "topical"]
+  },
+  {
+    "local_name": "awin",
+    "botanical": "Dialium guineense",
+    "common_english": "Velvet Tamarind",
+    "parts_commonly_used": ["bark", "leaves", "fruit"],
+    "typical_preparations": ["decoction", "infusion", "chewed raw"]
+  },
+  {
+    "local_name": "tama",
+    "botanical": "Tamarindus indica",
+    "common_english": "Tamarind",
+    "parts_commonly_used": ["fruit pulp", "leaves", "bark", "seeds"],
+    "typical_preparations": ["decoction", "infusion", "eaten raw"]
+  },
+  {
+    "local_name": "agbalumo",
+    "botanical": "Chrysophyllum albidum",
+    "common_english": "African Star Apple",
+    "parts_commonly_used": ["bark", "leaves", "fruit", "seeds"],
+    "typical_preparations": ["decoction", "eaten raw", "powder"]
+  },
+  {
+    "local_name": "sawa sawo",
+    "botanical": "Annona muricata",
+    "common_english": "Soursop",
+    "parts_commonly_used": ["leaves", "bark", "fruit", "seeds"],
+    "typical_preparations": ["decoction", "infusion", "eaten raw"]
+  },
+  {
+    "local_name": "guafa",
+    "botanical": "Psidium guajava",
+    "common_english": "Guava",
+    "parts_commonly_used": ["leaves", "bark", "fruit"],
+    "typical_preparations": ["decoction", "infusion", "eaten raw"]
+  },
+  {
+    "local_name": "awusa",
+    "botanical": "Tetracarpidium conophorum",
+    "common_english": "African Walnut",
+    "parts_commonly_used": ["seeds", "leaves", "bark"],
+    "typical_preparations": ["boiled seeds", "decoction"]
+  },
+  {
+    "local_name": "asala",
+    "botanical": "Tetracarpidium conophorum",
+    "common_english": "African Walnut",
+    "parts_commonly_used": ["seeds", "leaves"],
+    "typical_preparations": ["boiled seeds", "decoction"]
+  },
+  {
+    "local_name": "kakara",
+    "botanical": "Momordica charantia",
+    "common_english": "Bitter Melon",
+    "parts_commonly_used": ["fruit", "leaves", "seeds"],
+    "typical_preparations": ["decoction", "juice", "eaten raw"]
+  },
+  {
+    "local_name": "ejinrin wewe",
+    "botanical": "Momordica charantia",
+    "common_english": "Bitter Melon",
+    "parts_commonly_used": ["leaves", "fruit"],
+    "typical_preparations": ["decoction", "juice"]
+  },
+  {
+    "local_name": "ewe oje",
+    "botanical": "Euphorbia hirta",
+    "common_english": "Asthma Weed",
+    "parts_commonly_used": ["whole plant", "leaves"],
+    "typical_preparations": ["infusion", "decoction"]
+  },
+  {
+    "local_name": "ata wewe",
+    "botanical": "Capsicum frutescens",
+    "common_english": "Bird Pepper",
+    "parts_commonly_used": ["fruit", "seeds"],
+    "typical_preparations": ["eaten raw", "powder", "decoction"]
+  },
+  {
+    "local_name": "ata",
+    "botanical": "Capsicum annuum",
+    "common_english": "Red Pepper",
+    "parts_commonly_used": ["fruit", "seeds"],
+    "typical_preparations": ["powder", "eaten raw", "decoction"]
+  },
+  {
+    "local_name": "osupa",
+    "botanical": "Zanthoxylum zanthoxyloides",
+    "common_english": "Senegal Prickly Ash",
+    "parts_commonly_used": ["root bark", "stem bark", "fruits"],
+    "typical_preparations": ["decoction", "chewed raw", "powder"]
+  },
+  {
+    "local_name": "fagara",
+    "botanical": "Zanthoxylum zanthoxyloides",
+    "common_english": "Senegal Prickly Ash",
+    "parts_commonly_used": ["root bark", "stem bark"],
+    "typical_preparations": ["decoction", "powder"]
+  },
+  {
+    "local_name": "igi arun",
+    "botanical": "Enantia chlorantha",
+    "common_english": "Yellow Bark",
+    "parts_commonly_used": ["stem bark"],
+    "typical_preparations": ["decoction", "infusion"]
+  },
+  {
+    "local_name": "abeere",
+    "botanical": "Hunteria umbellata",
+    "common_english": "Abeere",
+    "parts_commonly_used": ["seeds", "bark"],
+    "typical_preparations": ["decoction", "powder", "infusion"]
+  },
+  {
+    "local_name": "igba",
+    "botanical": "Lagenaria siceraria",
+    "common_english": "Bottle Gourd",
+    "parts_commonly_used": ["fruit", "leaves", "seeds"],
+    "typical_preparations": ["decoction", "eaten raw", "juice"]
+  },
+  {
+    "local_name": "egusi",
+    "botanical": "Citrullus lanatus",
+    "common_english": "Watermelon Seed",
+    "parts_commonly_used": ["seeds", "leaves"],
+    "typical_preparations": ["powder", "decoction", "eaten cooked"]
+  },
+  {
+    "local_name": "oganwo",
+    "botanical": "Khaya senegalensis",
+    "common_english": "African Mahogany",
+    "parts_commonly_used": ["bark", "leaves", "seeds"],
+    "typical_preparations": ["decoction", "infusion", "powder"]
+  },
+  {
+    "local_name": "ewe ipin",
+    "botanical": "Alchornea cordifolia",
+    "common_english": "Christmas Bush",
+    "parts_commonly_used": ["leaves", "bark", "roots"],
+    "typical_preparations": ["decoction", "infusion", "poultice"]
+  },
+  {
+    "local_name": "ose",
+    "botanical": "Adansonia digitata",
+    "common_english": "Baobab",
+    "parts_commonly_used": ["bark", "leaves", "fruit pulp", "seeds"],
+    "typical_preparations": ["decoction", "infusion", "powder", "eaten raw"]
+  },
+  {
+    "local_name": "baobab",
+    "botanical": "Adansonia digitata",
+    "common_english": "Baobab",
+    "parts_commonly_used": ["leaves", "fruit pulp", "bark"],
+    "typical_preparations": ["decoction", "powder", "eaten raw"]
+  },
+  {
+    "local_name": "hulba",
+    "botanical": "Trigonella foenum-graecum",
+    "common_english": "Fenugreek",
+    "parts_commonly_used": ["seeds", "leaves"],
+    "typical_preparations": ["decoction", "powder", "infusion"]
+  },
+  {
+    "local_name": "fenugreek",
+    "botanical": "Trigonella foenum-graecum",
+    "common_english": "Fenugreek",
+    "parts_commonly_used": ["seeds"],
+    "typical_preparations": ["powder", "infusion", "decoction"]
+  },
+  {
+    "local_name": "ewe asunwon",
+    "botanical": "Senna occidentalis",
+    "common_english": "Coffee Senna",
+    "parts_commonly_used": ["leaves", "roots", "seeds"],
+    "typical_preparations": ["decoction", "infusion"]
+  },
+  {
+    "local_name": "ewe imi esu",
+    "botanical": "Boerhavia diffusa",
+    "common_english": "Hogweed",
+    "parts_commonly_used": ["roots", "leaves", "whole plant"],
+    "typical_preparations": ["decoction", "juice", "infusion"]
+  },
+  {
+    "local_name": "obi igbo",
+    "botanical": "Cola millenii",
+    "common_english": "Monkey Kola",
+    "parts_commonly_used": ["seeds", "bark"],
+    "typical_preparations": ["chewed raw", "decoction"]
+  },
+  {
+    "local_name": "emi ile",
+    "botanical": "Hoslundia opposita",
+    "common_english": "Hoslundia",
+    "parts_commonly_used": ["leaves", "roots", "stem"],
+    "typical_preparations": ["decoction", "infusion", "poultice"]
+  },
+  {
+    "local_name": "ube",
+    "botanical": "Dacryodes edulis",
+    "common_english": "African Pear",
+    "parts_commonly_used": ["fruit", "bark", "leaves"],
+    "typical_preparations": ["eaten cooked", "decoction"]
+  },
+  {
+    "local_name": "iroko",
+    "botanical": "Milicia excelsa",
+    "common_english": "Iroko",
+    "parts_commonly_used": ["bark", "leaves", "roots"],
+    "typical_preparations": ["decoction", "infusion"]
+  },
+  {
+    "local_name": "kanafuru",
+    "botanical": "Syzygium aromaticum",
+    "common_english": "Clove",
+    "parts_commonly_used": ["flower buds", "oil"],
+    "typical_preparations": ["decoction", "chewed raw", "oil topical", "infusion"]
+  },
+  {
+    "local_name": "clove",
+    "botanical": "Syzygium aromaticum",
+    "common_english": "Clove",
+    "parts_commonly_used": ["flower buds", "oil"],
+    "typical_preparations": ["decoction", "infusion", "oil topical"]
+  },
+  {
+    "local_name": "kirfa",
+    "botanical": "Cinnamomum verum",
+    "common_english": "Cinnamon",
+    "parts_commonly_used": ["bark", "oil"],
+    "typical_preparations": ["decoction", "infusion", "powder"]
+  },
+  {
+    "local_name": "cinnamon",
+    "botanical": "Cinnamomum verum",
+    "common_english": "Cinnamon",
+    "parts_commonly_used": ["bark"],
+    "typical_preparations": ["decoction", "infusion", "powder"]
+  },
+  {
+    "local_name": "ogbono",
+    "botanical": "Irvingia gabonensis",
+    "common_english": "Bush Mango",
+    "parts_commonly_used": ["seeds", "bark", "leaves"],
+    "typical_preparations": ["powder", "decoction", "eaten cooked"]
+  },
+  {
+    "local_name": "apon",
+    "botanical": "Irvingia gabonensis",
+    "common_english": "Bush Mango",
+    "parts_commonly_used": ["seeds", "bark"],
+    "typical_preparations": ["powder", "decoction"]
+  },
+  {
+    "local_name": "afomo",
+    "botanical": "Loranthus micranthus",
+    "common_english": "African Mistletoe",
+    "parts_commonly_used": ["whole plant", "leaves"],
+    "typical_preparations": ["decoction", "infusion"]
+  },
+  {
+    "local_name": "ewe elege",
+    "botanical": "Stachytarpheta jamaicensis",
+    "common_english": "Snakeweed",
+    "parts_commonly_used": ["leaves", "whole plant"],
+    "typical_preparations": ["decoction", "infusion", "poultice"]
+  },
+  {
+    "local_name": "gbure",
+    "botanical": "Talinum triangulare",
+    "common_english": "Water Leaf",
+    "parts_commonly_used": ["leaves", "stems"],
+    "typical_preparations": ["eaten cooked", "juice", "decoction"]
+  },
+  {
+    "local_name": "agbon",
+    "botanical": "Cocos nucifera",
+    "common_english": "Coconut",
+    "parts_commonly_used": ["fruit water", "oil", "flesh", "shell"],
+    "typical_preparations": ["drunk raw", "oil topical", "eaten raw"]
+  },
+  {
+    "local_name": "coconut",
+    "botanical": "Cocos nucifera",
+    "common_english": "Coconut",
+    "parts_commonly_used": ["fruit water", "oil", "flesh"],
+    "typical_preparations": ["drunk raw", "oil topical", "eaten raw"]
+  },
+  {
+    "local_name": "ogede agbe",
+    "botanical": "Musa paradisiaca",
+    "common_english": "Plantain",
+    "parts_commonly_used": ["unripe fruit", "peel", "leaves", "stem sap"],
+    "typical_preparations": ["eaten cooked", "decoction", "juice", "poultice"]
+  },
+  {
+    "local_name": "plantain",
+    "botanical": "Musa paradisiaca",
+    "common_english": "Plantain",
+    "parts_commonly_used": ["unripe fruit", "peel", "leaves"],
+    "typical_preparations": ["eaten cooked", "powder", "decoction"]
+  },
+  {
+    "local_name": "efinrin wewe",
+    "botanical": "Ocimum canum",
+    "common_english": "Hoary Basil",
+    "parts_commonly_used": ["leaves", "whole plant"],
+    "typical_preparations": ["infusion", "decoction", "steam inhalation"]
+  },
+  {
+    "local_name": "ewe panseke",
+    "botanical": "Sida acuta",
+    "common_english": "Broom Weed",
+    "parts_commonly_used": ["leaves", "roots", "whole plant"],
+    "typical_preparations": ["decoction", "infusion", "poultice"]
+  },
+  {
+    "local_name": "iyere dudu",
+    "botanical": "Piper nigrum",
+    "common_english": "Black Pepper",
+    "parts_commonly_used": ["fruit", "seeds"],
+    "typical_preparations": ["powder", "decoction", "infusion"]
+  },
+  {
+    "local_name": "black pepper",
+    "botanical": "Piper nigrum",
+    "common_english": "Black Pepper",
+    "parts_commonly_used": ["fruit"],
+    "typical_preparations": ["powder", "decoction"]
+  },
+  {
+    "local_name": "efo igbo",
+    "botanical": "Crassocephalum crepidioides",
+    "common_english": "African Cabbage",
+    "parts_commonly_used": ["leaves", "whole plant"],
+    "typical_preparations": ["eaten cooked", "decoction", "juice"]
+  },
+  {
+    "local_name": "ewe bere",
+    "botanical": "Olax subscorpioidea",
+    "common_english": "Olax",
+    "parts_commonly_used": ["roots", "bark", "leaves"],
+    "typical_preparations": ["decoction", "infusion"]
+  },
+  {
+    "local_name": "orin ata",
+    "botanical": "Massularia acuminata",
+    "common_english": "Toothbrush Tree",
+    "parts_commonly_used": ["stem", "roots"],
+    "typical_preparations": ["chewed raw", "decoction"]
   }
 ]
