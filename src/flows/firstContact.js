@@ -26,13 +26,14 @@ const LANGUAGE_CODE_MAP = {
 
 // Entry point — called by router when the phone number is unknown
 async function handle(message, from) {
+  // Privacy disclosure shown on every entry to first contact (PRD §7, §11)
+  await _sendPrivacyNotice(from);
+
   // Audio before language picker: Whisper detects language, skip straight to name step
   if (message.type === 'audio') {
     const { text, language, confidence } = await _transcribeMessage(message, from);
     if (confidence < 0.7) {
-      return sendTextMessage(from, "Sorry, I didn't catch that. Please try again, or tap a language button below.\n\n" +
-        "Hello 👋 I'm Sanko. What language do you prefer?")
-        .then(() => sendButtonMessage(from, 'Choose your language:', LANGUAGE_OPTIONS));
+      return sendButtonMessage(from, "Sorry, I didn't catch that. Please tap a language button below.", LANGUAGE_OPTIONS);
     }
     const langCode = _whisperLangToCode(language);
     const practitioner = await _getOrCreatePractitioner(from, langCode);
@@ -136,6 +137,15 @@ async function _handleNameVoiceNote(message, from, practitioner) {
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
+
+function _sendPrivacyNotice(from) {
+  return sendTextMessage(
+    from,
+    'Your formulations are private to you — only you can see them.\n\n' +
+    'The Sanko team (Felix) may access records for technical support only. ' +
+    'Full details: sanko.africa/privacy'
+  );
+}
 
 function _askForName(from) {
   return sendTextMessage(
