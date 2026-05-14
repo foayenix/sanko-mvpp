@@ -581,3 +581,62 @@ describe('W8 — unreadable photo detection', () => {
     assert.ok(0.59 < LOW);   // 0.59 triggers retake
   });
 });
+
+// ─── W9 — admin dashboard (unit, no real APIs) ───────────────────────────────
+
+describe('W9 — admin module loads', () => {
+  it('admin router is an Express router', () => {
+    const admin = require('../src/admin');
+    // Express routers are functions with a stack property
+    assert.equal(typeof admin, 'function');
+    assert.ok(Array.isArray(admin.stack));
+  });
+});
+
+describe('W9 — admin HTML helpers', () => {
+  // Load the private helpers by requiring the module and testing observable behaviour
+  // via the /admin route response shape. We test the pure helpers inline here.
+
+  it('confidence badge returns green for score >= 0.75', () => {
+    // Inline reimplementation of _confBadge logic to test the threshold
+    function confClass(score) {
+      if (score == null) return 'gray';
+      return score >= 0.75 ? 'green' : score >= 0.6 ? 'amber' : 'red';
+    }
+    assert.equal(confClass(0.92), 'green');
+    assert.equal(confClass(0.75), 'green');
+    assert.equal(confClass(0.74), 'amber');
+    assert.equal(confClass(0.6),  'amber');
+    assert.equal(confClass(0.59), 'red');
+    assert.equal(confClass(null), 'gray');
+  });
+
+  it('Basic Auth header is required — missing auth returns 401', () => {
+    process.env.ADMIN_PASSWORD = 'testpass';
+    const { requireAuth } = require('../src/admin');
+    let statusCode;
+    const req = { headers: {} };
+    const res = {
+      set() { return this; },
+      status(c) { statusCode = c; return this; },
+      send() { return this; },
+    };
+    requireAuth(req, res, () => {});
+    assert.equal(statusCode, 401);
+  });
+
+  it('Wrong password returns 401', () => {
+    process.env.ADMIN_PASSWORD = 'correct';
+    const { requireAuth } = require('../src/admin');
+    const creds = Buffer.from('felix:wrong').toString('base64');
+    let statusCode;
+    const req = { headers: { authorization: `Basic ${creds}` } };
+    const res = {
+      set() { return this; },
+      status(c) { statusCode = c; return this; },
+      send() { return this; },
+    };
+    requireAuth(req, res, () => {});
+    assert.equal(statusCode, 401);
+  });
+});

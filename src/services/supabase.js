@@ -193,6 +193,56 @@ async function updateFormulationField(id, field, value) {
   return data;
 }
 
+// ─── admin queries ────────────────────────────────────────────────────────────
+
+async function adminGetPractitioners() {
+  const { data, error } = await getClient()
+    .from('practitioners')
+    .select('id, display_name, phone_number, preferred_language, created_at, last_active_at')
+    .order('created_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+async function adminGetFormulations() {
+  const { data, error } = await getClient()
+    .from('formulations')
+    .select('id, short_code, condition_std, condition_local, confidence_score, status, created_at, practitioner_id, practitioners(display_name)')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+// Returns low-confidence formulations + unknown-plant and error events
+async function adminGetFlagged() {
+  const [{ data: lowConf }, { data: events }] = await Promise.all([
+    getClient()
+      .from('formulations')
+      .select('short_code, condition_std, condition_local, confidence_score, created_at, practitioner_id, practitioners(display_name)')
+      .lt('confidence_score', 0.75)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false }),
+    getClient()
+      .from('events')
+      .select('id, event_type, payload, created_at, practitioner_id, practitioners(display_name)')
+      .in('event_type', ['unknown_plant_flagged', 'error'])
+      .order('created_at', { ascending: false })
+      .limit(50),
+  ]);
+  return { lowConf: lowConf ?? [], events: events ?? [] };
+}
+
+async function adminGetCounts() {
+  const [{ count: practCount }, { count: formCount }, { count: flagCount }] = await Promise.all([
+    getClient().from('practitioners').select('*', { count: 'exact', head: true }),
+    getClient().from('formulations').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+    getClient().from('formulations').select('*', { count: 'exact', head: true }).lt('confidence_score', 0.75).eq('status', 'active'),
+  ]);
+  return { practitioners: practCount ?? 0, formulations: formCount ?? 0, flagged: flagCount ?? 0 };
+}
+
 async function uploadPhoto(practitioner_id, buffer, mimeType) {
   const ext = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
   const storagePath = `photos/${practitioner_id}/${Date.now()}.${ext}`;
@@ -223,4 +273,8 @@ module.exports = {
   getFormulationByShortCode,
   getSignedMediaUrl,
   updateFormulationField,
+  adminGetPractitioners,
+  adminGetFormulations,
+  adminGetFlagged,
+  adminGetCounts,
 };
