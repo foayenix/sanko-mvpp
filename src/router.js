@@ -58,29 +58,12 @@ async function dispatch(from, message) {
 
   await updateLastActive(practitioner.id);
 
-  // Photo → Flow 6 regardless of active session
+  // Photo → Flow 6 regardless of active session (PRD §5.6)
   if (message.type === 'image') {
     return photoCapture.handle(message, from, practitioner);
   }
 
-  const text = extractText(message).toLowerCase().trim();
-
-  // Browse vault trigger (PRD §5.4)
-  if (!message._inSession && (text === 'my vault' || text === 'list' || text === 'vault')) {
-    return browseVault.handle(message, from, practitioner);
-  }
-
-  // New formulation trigger (PRD §5.2)
-  if (!message._inSession && (text === 'new' || text === 'help')) {
-    return guidedDoc.handle(message, from, practitioner);
-  }
-
-  // Edit trigger (PRD §5.5)
-  if (!message._inSession && (text.startsWith('edit fm-') || text === 'edit')) {
-    return editFormulation.handle(message, from, practitioner);
-  }
-
-  // Resume active session if one exists
+  // Active session takes priority over keyword shortcuts
   const session = await getActiveSession(practitioner.id);
   if (session) {
     return resumeSession(session, message, from, practitioner);
@@ -95,16 +78,39 @@ async function dispatch(from, message) {
     return;
   }
 
+  const text = extractText(message).toLowerCase().trim();
+
+  // Browse vault trigger (PRD §5.4)
+  if (text === 'my vault' || text === 'list' || text === 'vault') {
+    return browseVault.handle(message, from, practitioner);
+  }
+
+  // New formulation trigger (PRD §5.2)
+  if (text === 'new') {
+    return guidedDoc.handle(message, from, practitioner);
+  }
+
+  // Help menu
+  if (text === 'help') {
+    return sendTextMessage(from, _helpMenu(practitioner));
+  }
+
+  // Edit trigger (PRD §5.5)
+  if (text.startsWith('edit fm-') || text === 'edit') {
+    return editFormulation.handle(message, from, practitioner);
+  }
+
   // Unprompted voice note (30–180s) → Flow 3 (express doc)
   if (message.type === 'audio') {
     return expressDoc.handle(message, from, practitioner);
   }
 
   // Fallback
-  await sendTextMessage(
-    from,
-    `Hi ${practitioner.display_name || 'there'} 👋\n\nSend a voice note to document a formulation, or type:\n• *new* — guided documentation\n• *my vault* — browse your records\n• *help* — this menu`
-  );
+  await sendTextMessage(from, _helpMenu(practitioner));
+}
+
+function _helpMenu(practitioner) {
+  return `Hi ${practitioner.display_name || 'there'} 👋\n\nSend a voice note to document a formulation, or type:\n• *new* — guided documentation\n• *my vault* — browse your records\n• *help* — this menu`;
 }
 
 function resumeSession(session, message, from, practitioner) {

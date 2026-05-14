@@ -39,6 +39,17 @@ async function createPractitioner({ phone_number, display_name, preferred_langua
   return data;
 }
 
+async function updatePractitioner(id, fields) {
+  const { data, error } = await getClient()
+    .from('practitioners')
+    .update(fields)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 async function getSession(practitioner_id) {
   const { data } = await getClient()
     .from('sessions')
@@ -259,6 +270,7 @@ module.exports = {
   logEvent,
   getPractitioner,
   createPractitioner,
+  updatePractitioner,
   updateLastActive,
   getSession,
   getExpiredSession,
