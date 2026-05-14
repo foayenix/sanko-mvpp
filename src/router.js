@@ -1,6 +1,6 @@
 const { sendTextMessage } = require('./services/whatsapp');
 const { logEvent, getPractitioner, updateLastActive } = require('./services/supabase');
-const { getActiveSession } = require('./utils/session');
+const { getActiveSession, getTimedOutSession, endSession } = require('./utils/session');
 const firstContact = require('./flows/firstContact');
 const guidedDoc = require('./flows/guidedDoc');
 const expressDoc = require('./flows/expressDoc');
@@ -84,6 +84,15 @@ async function dispatch(from, message) {
   const session = await getActiveSession(practitioner.id);
   if (session) {
     return resumeSession(session, message, from, practitioner);
+  }
+
+  // No active session — check if one just timed out (PRD §7: 30-min idle)
+  const timedOut = await getTimedOutSession(practitioner.id);
+  if (timedOut) {
+    await endSession(practitioner.id);
+    await logEvent({ practitioner_id: practitioner.id, event_type: 'session_timeout', payload: { flow: timedOut.flow, step: timedOut.step } });
+    await sendTextMessage(from, "Your previous session timed out after 30 minutes of inactivity. No data was saved.\n\nType *new* to start a fresh formulation.");
+    return;
   }
 
   // Unprompted voice note (30–180s) → Flow 3 (express doc)

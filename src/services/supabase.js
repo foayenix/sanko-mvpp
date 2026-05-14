@@ -49,6 +49,18 @@ async function getSession(practitioner_id) {
   return data ?? null;
 }
 
+// Returns an expired session (expires_at in the past) so the router can notify
+// the practitioner and clean up, rather than silently dropping the session.
+async function getExpiredSession(practitioner_id) {
+  const { data } = await getClient()
+    .from('sessions')
+    .select('*')
+    .eq('practitioner_id', practitioner_id)
+    .lte('expires_at', new Date().toISOString())
+    .single();
+  return data ?? null;
+}
+
 async function upsertSession({ practitioner_id, flow, step, context }) {
   const expires_at = new Date(Date.now() + 30 * 60 * 1000).toISOString();
   const { error } = await getClient()
@@ -126,6 +138,7 @@ module.exports = {
   createPractitioner,
   updateLastActive,
   getSession,
+  getExpiredSession,
   upsertSession,
   clearSession,
   saveMedia,
