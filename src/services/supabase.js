@@ -65,12 +65,44 @@ async function clearSession(practitioner_id) {
   if (error) console.error('clearSession error:', error.message);
 }
 
+async function updateLastActive(practitioner_id) {
+  const { error } = await getClient()
+    .from('practitioners')
+    .update({ last_active_at: new Date().toISOString() })
+    .eq('id', practitioner_id);
+  if (error) console.error('updateLastActive error:', error.message);
+}
+
+async function saveMedia({ practitioner_id, kind, storage_path, duration_seconds, transcript }) {
+  const { data, error } = await getClient()
+    .from('media')
+    .insert({ practitioner_id, kind, storage_path, duration_seconds, transcript })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+async function uploadVoiceNote(practitioner_id, buffer, mimeType) {
+  const ext = mimeType.includes('ogg') ? 'ogg' : 'mp4';
+  const path = `voice/${practitioner_id}/${Date.now()}.${ext}`;
+  const { error } = await getClient()
+    .storage
+    .from('sanko-media')
+    .upload(path, buffer, { contentType: mimeType, upsert: false });
+  if (error) throw new Error(error.message);
+  return path;
+}
+
 module.exports = {
   getClient,
   logEvent,
   getPractitioner,
   createPractitioner,
+  updateLastActive,
   getSession,
   upsertSession,
   clearSession,
+  saveMedia,
+  uploadVoiceNote,
 };
