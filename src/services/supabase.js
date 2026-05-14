@@ -94,6 +94,31 @@ async function uploadVoiceNote(practitioner_id, buffer, mimeType) {
   return path;
 }
 
+async function saveFormulation({ practitioner_id, source_media_id, structured, original_text, original_language }) {
+  const row = {
+    practitioner_id,
+    source_media_id: source_media_id ?? null,
+    condition_local:   structured.condition?.local_name ?? null,
+    condition_std:     structured.condition?.standardised ?? null,
+    icd_11_code:       structured.condition?.icd_11_code ?? null,
+    plants:            structured.plants ?? [],
+    preparation:       structured.preparation ?? null,
+    dosage:            structured.dosage ?? null,
+    notes:             structured.notes ?? null,
+    original_text:     original_text ?? null,
+    original_language: original_language ?? structured.metadata?.original_language ?? null,
+    confidence_score:  structured.metadata?.confidence_score ?? null,
+    status:            'active',
+  };
+  const { data, error } = await getClient()
+    .from('formulations')
+    .insert(row)
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 module.exports = {
   getClient,
   logEvent,
@@ -105,4 +130,5 @@ module.exports = {
   clearSession,
   saveMedia,
   uploadVoiceNote,
+  saveFormulation,
 };

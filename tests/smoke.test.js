@@ -84,3 +84,72 @@ describe('W2 — router extractText', () => {
     assert.equal(extractText(msg), 'English');
   });
 });
+
+// ─── W3 — Flow 2 guided doc (unit, no real APIs) ─────────────────────────────
+
+describe('W3 — guidedDoc _contextToTranscript', () => {
+  const { _contextToTranscript } = require('../src/flows/guidedDoc');
+
+  it('builds transcript from all five answers', () => {
+    const ctx = {
+      condition:   'fever',
+      plants:      '10 neem leaves, handful of bitter leaf',
+      preparation: 'boil in water for 20 minutes',
+      dosage:      'one cup twice a day for five days',
+      notes:       'avoid in pregnancy',
+    };
+    const t = _contextToTranscript(ctx);
+    assert.ok(t.includes('Condition: fever'));
+    assert.ok(t.includes('Plants: 10 neem leaves'));
+    assert.ok(t.includes('Preparation: boil in water'));
+    assert.ok(t.includes('Dosage: one cup'));
+    assert.ok(t.includes('Notes: avoid in pregnancy'));
+  });
+
+  it('omits empty notes field', () => {
+    const ctx = { condition: 'malaria', plants: 'neem', preparation: 'decoction', dosage: '1 cup daily', notes: '' };
+    const t = _contextToTranscript(ctx);
+    assert.ok(!t.includes('Notes:'));
+  });
+});
+
+describe('W3 — guidedDoc _formatCard', () => {
+  const { _formatCard } = require('../src/flows/guidedDoc');
+
+  it('renders a complete structured formulation', () => {
+    const s = {
+      condition:   { local_name: 'iba', standardised: 'Malaria', icd_11_code: '1F40' },
+      plants:      [{ local_name: 'dongoyaro', botanical: 'Azadirachta indica', quantity_normalised: '10 leaves', part_used: 'leaves' }],
+      preparation: { method: 'decoction', duration_minutes: 20, medium: 'water' },
+      dosage:      { amount: '1 cup', frequency: 'twice daily', duration_days: 5 },
+      metadata:    { confidence_score: 0.92 },
+    };
+    const card = _formatCard(s);
+    assert.ok(card.includes('Malaria'));
+    assert.ok(card.includes('dongoyaro'));
+    assert.ok(card.includes('Azadirachta indica'));
+    assert.ok(card.includes('decoction'));
+    assert.ok(card.includes('twice daily'));
+    assert.ok(card.includes('92%'));
+  });
+
+  it('handles missing optional fields gracefully', () => {
+    const s = {
+      condition:   { local_name: 'iba', standardised: null },
+      plants:      [{ local_name: 'ewuro', botanical: null }],
+      preparation: { method: null },
+      dosage:      {},
+      metadata:    {},
+    };
+    // Should not throw
+    assert.doesNotThrow(() => _formatCard(s));
+  });
+});
+
+describe('W3 — guidedDoc module exports', () => {
+  const gd = require('../src/flows/guidedDoc');
+  it('exports handle and resume', () => {
+    assert.equal(typeof gd.handle, 'function');
+    assert.equal(typeof gd.resume, 'function');
+  });
+});
