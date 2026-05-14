@@ -1,0 +1,149 @@
+[
+  {
+    "local_name": "dongoyaro",
+    "botanical": "Azadirachta indica",
+    "common_english": "Neem",
+    "parts_commonly_used": ["leaves", "bark", "seeds"],
+    "typical_preparations": ["decoction", "infusion"]
+  },
+  {
+    "local_name": "ewe dongoyaro",
+    "botanical": "Azadirachta indica",
+    "common_english": "Neem",
+    "parts_commonly_used": ["leaves"],
+    "typical_preparations": ["decoction", "infusion"]
+  },
+  {
+    "local_name": "bitter leaf",
+    "botanical": "Vernonia amygdalina",
+    "common_english": "Bitter Leaf",
+    "parts_commonly_used": ["leaves"],
+    "typical_preparations": ["juice", "decoction"]
+  },
+  {
+    "local_name": "ewuro",
+    "botanical": "Vernonia amygdalina",
+    "common_english": "Bitter Leaf",
+    "parts_commonly_used": ["leaves"],
+    "typical_preparations": ["juice", "decoction"]
+  },
+  {
+    "local_name": "zobo",
+    "botanical": "Hibiscus sabdariffa",
+    "common_english": "Roselle",
+    "parts_commonly_used": ["calyx", "leaves"],
+    "typical_preparations": ["infusion", "decoction"]
+  },
+  {
+    "local_name": "isapa",
+    "botanical": "Hibiscus sabdariffa",
+    "common_english": "Roselle",
+    "parts_commonly_used": ["calyx"],
+    "typical_preparations": ["infusion"]
+  },
+  {
+    "local_name": "atale",
+    "botanical": "Zingiber officinale",
+    "common_english": "Ginger",
+    "parts_commonly_used": ["rhizome"],
+    "typical_preparations": ["decoction", "infusion", "raw"]
+  },
+  {
+    "local_name": "ginger",
+    "botanical": "Zingiber officinale",
+    "common_english": "Ginger",
+    "parts_commonly_used": ["rhizome"],
+    "typical_preparations": ["decoction", "infusion"]
+  },
+  {
+    "local_name": "efirin",
+    "botanical": "Ocimum gratissimum",
+    "common_english": "African Basil",
+    "parts_commonly_used": ["leaves"],
+    "typical_preparations": ["infusion", "steam inhalation"]
+  },
+  {
+    "local_name": "african basil",
+    "botanical": "Ocimum gratissimum",
+    "common_english": "African Basil",
+    "parts_commonly_used": ["leaves"],
+    "typical_preparations": ["infusion"]
+  },
+  {
+    "local_name": "igi ose",
+    "botanical": "Xylopia aethiopica",
+    "common_english": "Ethiopian Pepper",
+    "parts_commonly_used": ["fruits", "bark"],
+    "typical_preparations": ["decoction", "powder"]
+  },
+  {
+    "local_name": "eeru alamo",
+    "botanical": "Xylopia aethiopica",
+    "common_english": "Ethiopian Pepper",
+    "parts_commonly_used": ["fruits"],
+    "typical_preparations": ["decoction"]
+  },
+  {
+    "local_name": "moringa",
+    "botanical": "Moringa oleifera",
+    "common_english": "Moringa",
+    "parts_commonly_used": ["leaves", "seeds", "pods"],
+    "typical_preparations": ["powder", "infusion", "decoction"]
+  },
+  {
+    "local_name": "ewe ile",
+    "botanical": "Moringa oleifera",
+    "common_english": "Moringa",
+    "parts_commonly_used": ["leaves"],
+    "typical_preparations": ["powder", "infusion"]
+  },
+  {
+    "local_name": "turmeric",
+    "botanical": "Curcuma longa",
+    "common_english": "Turmeric",
+    "parts_commonly_used": ["rhizome"],
+    "typical_preparations": ["powder", "decoction"]
+  },
+  {
+    "local_name": "atale pupa",
+    "botanical": "Curcuma longa",
+    "common_english": "Turmeric",
+    "parts_commonly_used": ["rhizome"],
+    "typical_preparations": ["powder", "decoction"]
+  },
+  {
+    "local_name": "igi nla",
+    "botanical": "Parkia biglobosa",
+    "common_english": "African Locust Bean",
+    "parts_commonly_used": ["seeds", "bark", "leaves"],
+    "typical_preparations": ["decoction", "fermented"]
+  },
+  {
+    "local_name": "locust bean",
+    "botanical": "Parkia biglobosa",
+    "common_english": "African Locust Bean",
+    "parts_commonly_used": ["seeds"],
+    "typical_preparations": ["decoction"]
+  },
+  {
+    "local_name": "ogiri",
+    "botanical": "Parkia biglobosa",
+    "common_english": "African Locust Bean (fermented)",
+    "parts_commonly_used": ["seeds"],
+    "typical_preparations": ["fermented condiment"]
+  },
+  {
+    "local_name": "black seed",
+    "botanical": "Nigella sativa",
+    "common_english": "Black Seed / Kalonji",
+    "parts_commonly_used": ["seeds"],
+    "typical_preparations": ["oil", "powder", "raw"]
+  },
+  {
+    "local_name": "habbatus sauda",
+    "botanical": "Nigella sativa",
+    "common_english": "Black Seed",
+    "parts_commonly_used": ["seeds"],
+    "typical_preparations": ["oil", "powder"]
+  }
+]
