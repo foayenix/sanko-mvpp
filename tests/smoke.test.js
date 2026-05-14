@@ -218,3 +218,115 @@ describe('W4 — router session timeout path', () => {
     assert.equal(extractText({ type: 'interactive', interactive: {} }), '');
   });
 });
+
+// ─── W5 — Flow 3 express doc + plant lookup (unit, no real APIs) ─────────────
+
+describe('W5 — expressDoc module exports', () => {
+  const ed = require('../src/flows/expressDoc');
+  it('exports handle, resume, and helpers', () => {
+    assert.equal(typeof ed.handle, 'function');
+    assert.equal(typeof ed.resume, 'function');
+    assert.equal(typeof ed._extractPartialContext, 'function');
+    assert.equal(typeof ed._firstMissingStep, 'function');
+    assert.equal(typeof ed._formatCard, 'function');
+  });
+});
+
+describe('W5 — _extractPartialContext', () => {
+  const { _extractPartialContext } = require('../src/flows/expressDoc');
+
+  it('extracts all four main fields from a complete structured object', () => {
+    const s = {
+      condition:   { local_name: 'iba', standardised: 'Malaria' },
+      plants:      [{ local_name: 'dongoyaro', botanical: 'Azadirachta indica', quantity_raw: '10 leaves' }],
+      preparation: { method: 'decoction', duration_minutes: 20, medium: 'water' },
+      dosage:      { amount: '1 cup', frequency: 'twice daily', duration_days: 5 },
+      metadata:    { confidence_score: 0.88 },
+    };
+    const ctx = _extractPartialContext(s);
+    assert.ok(ctx.condition.includes('iba') || ctx.condition.includes('Malaria'));
+    assert.ok(ctx.plants.includes('dongoyaro'));
+    assert.ok(ctx.preparation.includes('decoction'));
+    assert.ok(ctx.dosage.includes('twice daily'));
+  });
+
+  it('returns empty object when structured has no usable data', () => {
+    const ctx = _extractPartialContext({ condition: {}, plants: [], preparation: {}, dosage: {}, metadata: {} });
+    assert.equal(Object.keys(ctx).length, 0);
+  });
+});
+
+describe('W5 — _firstMissingStep', () => {
+  const { _firstMissingStep } = require('../src/flows/expressDoc');
+
+  it('returns awaiting_condition when nothing is filled', () => {
+    assert.equal(_firstMissingStep({}), 'awaiting_condition');
+  });
+
+  it('returns awaiting_plants when only condition is filled', () => {
+    assert.equal(_firstMissingStep({ condition: 'malaria' }), 'awaiting_plants');
+  });
+
+  it('returns awaiting_notes when all four main fields are filled', () => {
+    assert.equal(_firstMissingStep({ condition: 'x', plants: 'y', preparation: 'z', dosage: 'w' }), 'awaiting_notes');
+  });
+});
+
+describe('W5 — expressDoc _formatCard flags unknown plants', () => {
+  const { _formatCard } = require('../src/flows/expressDoc');
+
+  it('adds warning emoji for plant with no botanical name', () => {
+    const s = {
+      condition:   { standardised: 'Fever' },
+      plants:      [{ local_name: 'unknownherb', botanical: null, quantity_raw: 'handful' }],
+      preparation: { method: 'decoction' },
+      dosage:      { amount: '1 cup', frequency: 'once daily' },
+      metadata:    { confidence_score: 0.8 },
+    };
+    const card = _formatCard(s);
+    assert.ok(card.includes('⚠️'));
+    assert.ok(card.includes('unknownherb'));
+  });
+
+  it('no warning emoji when all plants are identified', () => {
+    const s = {
+      condition:   { standardised: 'Malaria' },
+      plants:      [{ local_name: 'dongoyaro', botanical: 'Azadirachta indica', quantity_raw: '10 leaves' }],
+      preparation: { method: 'boiling' },
+      dosage:      { amount: '1 cup', frequency: 'twice daily' },
+      metadata:    { confidence_score: 0.92 },
+    };
+    const card = _formatCard(s);
+    assert.ok(!card.includes('⚠️'));
+  });
+});
+
+describe('W5 — plant lookup expanded', () => {
+  const { lookup } = require('../src/utils/plantLookup');
+
+  it('has at least 100 entries', () => {
+    const fs = require('fs');
+    const data = JSON.parse(fs.readFileSync('data/plant_lookup_v1.json', 'utf8'));
+    assert.ok(data.length >= 100, `Expected ≥100 entries, got ${data.length}`);
+  });
+
+  it('finds Yoruba names: atale (ginger)', () => {
+    assert.equal(lookup('atale').botanical, 'Zingiber officinale');
+  });
+
+  it('finds Yoruba names: oruwo (Morinda lucida)', () => {
+    assert.equal(lookup('oruwo').botanical, 'Morinda lucida');
+  });
+
+  it('finds Igbo name: utazi', () => {
+    assert.equal(lookup('utazi').botanical, 'Gongronema latifolium');
+  });
+
+  it('finds Hausa name: tafarnuwa (garlic)', () => {
+    assert.equal(lookup('tafarnuwa').botanical, 'Allium sativum');
+  });
+
+  it('finds orogbo (bitter kola)', () => {
+    assert.equal(lookup('orogbo').botanical, 'Garcinia kola');
+  });
+});
