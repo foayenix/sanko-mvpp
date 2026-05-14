@@ -60,12 +60,21 @@ tests/
 | Week | Theme | Status |
 |------|-------|--------|
 | W1 | Skeleton + echo bot | ✅ Done |
-| W2 | DB + Flow 1 (first contact) | ⬜ Next |
-| W3 | Flow 2 guided doc (happy path) | ⬜ |
-| W4 | Flow 2 edge cases | ⬜ |
-| W5 | Flow 3 express doc | ⬜ |
-| W6 | Flow 4 browse vault | ⬜ |
-| W7 | Flow 5 edit formulation | ⬜ |
-| W8 | Flow 6 photo capture | ⬜ |
-| W9 | Admin view | ⬜ |
-| W10–12 | Testing, pilot, demo | ⬜ |
+| W2 | DB + Flow 1 (first contact) | ✅ Done |
+| W3 | Flow 2 guided doc (happy path) | ✅ Done |
+| W4 | Flow 2 edge cases | ✅ Done |
+| W5 | Flow 3 express doc | ✅ Done |
+| W6 | Flow 4 browse vault | ✅ Done |
+| W7 | Flow 5 edit formulation | ✅ Done |
+| W8 | Flow 6 photo capture | ✅ Done |
+| W9 | Admin view | ✅ Done |
+| W10 | Internal testing + bug-fix sprint | ✅ Done |
+| G1 | GPT-4o fallback via `LLM_PROVIDER` env var | ✅ Done |
+| G2 | Plant lookup expanded to 152 entries | ✅ Done |
+| G3 | Privacy disclosure at first contact | ✅ Done |
+| G4 | `PRIVACY.md` in repo | ✅ Done |
+| G5 | Cost monitoring view in admin | ✅ Done |
+| W11 | Pilot onboarding (20 HTSN practitioners) | ⬜ Blocked on Meta production WhatsApp number |
+| W12 | Demo video + institutional dashboard | ⬜ Next |
+
+**Tests**: 74/74 passing · run with `npm test`.
