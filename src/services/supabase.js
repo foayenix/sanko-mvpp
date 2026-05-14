@@ -193,6 +193,17 @@ async function updateFormulationField(id, field, value) {
   return data;
 }
 
+async function uploadPhoto(practitioner_id, buffer, mimeType) {
+  const ext = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
+  const storagePath = `photos/${practitioner_id}/${Date.now()}.${ext}`;
+  const { error } = await getClient()
+    .storage
+    .from('sanko-media')
+    .upload(storagePath, buffer, { contentType: mimeType, upsert: false });
+  if (error) throw new Error(error.message);
+  return storagePath;
+}
+
 module.exports = {
   getClient,
   logEvent,
@@ -205,6 +216,7 @@ module.exports = {
   clearSession,
   saveMedia,
   uploadVoiceNote,
+  uploadPhoto,
   saveFormulation,
   listFormulations,
   getFormulation,

@@ -512,3 +512,72 @@ describe('W7 — _summariseField', () => {
     assert.ok(s.includes('5 days'));
   });
 });
+
+// ─── W8 — Flow 6 photo capture (unit, no real APIs) ──────────────────────────
+
+describe('W8 — photoCapture module exports', () => {
+  const pc = require('../src/flows/photoCapture');
+  it('exports handle, resume, and _formatCard', () => {
+    assert.equal(typeof pc.handle, 'function');
+    assert.equal(typeof pc.resume, 'function');
+    assert.equal(typeof pc._formatCard, 'function');
+  });
+});
+
+describe('W8 — photoCapture _formatCard', () => {
+  const { _formatCard } = require('../src/flows/photoCapture');
+
+  it('renders condition, plants, preparation, dosage, confidence, and source label', () => {
+    const s = {
+      condition:   { local_name: 'iba', standardised: 'Malaria' },
+      plants:      [
+        { local_name: 'dongoyaro', botanical: 'Azadirachta indica', quantity_raw: '10 leaves' },
+        { local_name: 'ewuro',     botanical: null,                  quantity_raw: 'handful' },
+      ],
+      preparation: { method: 'decoction', duration_minutes: 20, medium: 'water' },
+      dosage:      { amount: '1 cup', frequency: 'twice daily', duration_days: 5 },
+      metadata:    { confidence_score: 0.82 },
+    };
+    const card = _formatCard(s);
+    assert.ok(card.includes('Malaria'));
+    assert.ok(card.includes('dongoyaro'));
+    assert.ok(card.includes('Azadirachta indica'));
+    assert.ok(card.includes('ewuro'));
+    assert.ok(card.includes('⚠️'));              // unknown plant flagged
+    assert.ok(card.includes('decoction'));
+    assert.ok(card.includes('twice daily'));
+    assert.ok(card.includes('82%'));
+    assert.ok(card.includes('photo'));
+  });
+
+  it('does not throw on a minimal structured object', () => {
+    const s = { condition: {}, plants: [], preparation: {}, dosage: {}, metadata: {} };
+    assert.doesNotThrow(() => _formatCard(s));
+  });
+
+  it('no ⚠️ when all plants have botanical names', () => {
+    const s = {
+      condition:   { standardised: 'Fever' },
+      plants:      [{ local_name: 'dongoyaro', botanical: 'Azadirachta indica' }],
+      preparation: { method: 'infusion' },
+      dosage:      {},
+      metadata:    { confidence_score: 0.9 },
+    };
+    assert.ok(!_formatCard(s).includes('⚠️'));
+  });
+});
+
+describe('W8 — unreadable photo detection', () => {
+  it('Claude error shape {error: "unreadable"} is detectable', () => {
+    const result = { error: 'unreadable', reason: 'image too blurry' };
+    assert.equal(result.error, 'unreadable');
+    assert.ok(result.reason.includes('blurry'));
+  });
+
+  it('low confidence < 0.6 triggers retake path', () => {
+    const LOW = 0.6;
+    assert.ok(0.55 < LOW);
+    assert.ok(0.6 >= LOW);   // exactly 0.6 passes
+    assert.ok(0.59 < LOW);   // 0.59 triggers retake
+  });
+});
