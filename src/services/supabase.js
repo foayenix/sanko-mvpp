@@ -254,6 +254,58 @@ async function adminGetCounts() {
   return { practitioners: practCount ?? 0, formulations: formCount ?? 0, flagged: flagCount ?? 0 };
 }
 
+// Returns 7-day and 30-day API-cost event counts plus a 14-day daily breakdown.
+// Estimates USD cost using fixed per-call rates (Whisper ~$0.009, Claude text ~$0.003, Claude vision ~$0.010).
+async function adminGetUsageStats() {
+  const now = Date.now();
+  const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data } = await getClient()
+    .from('events')
+    .select('event_type, payload, created_at')
+    .gte('created_at', since30)
+    .order('created_at', { ascending: false });
+
+  const rows = data ?? [];
+  const since7ms = now - 7 * 24 * 60 * 60 * 1000;
+
+  const isWhisper      = r => r.event_type === 'whisper_call';
+  const isClaudeText   = r => r.event_type === 'claude_call' && r.payload?.type !== 'vision';
+  const isClaudeVision = r => r.event_type === 'claude_call' && r.payload?.type === 'vision';
+  const isFormulation  = r => r.event_type === 'formulation_saved';
+  const isError        = r => r.event_type === 'error';
+
+  function tally(subset) {
+    const whisper      = subset.filter(isWhisper).length;
+    const claudeText   = subset.filter(isClaudeText).length;
+    const claudeVision = subset.filter(isClaudeVision).length;
+    return {
+      whisper, claudeText, claudeVision,
+      formulations: subset.filter(isFormulation).length,
+      errors:       subset.filter(isError).length,
+      estimatedUSD: (whisper * 0.009 + claudeText * 0.003 + claudeVision * 0.010).toFixed(2),
+    };
+  }
+
+  const last7  = rows.filter(r => new Date(r.created_at).getTime() >= since7ms);
+  const since14ms = now - 14 * 24 * 60 * 60 * 1000;
+  const recent14  = rows.filter(r => new Date(r.created_at).getTime() >= since14ms);
+
+  // Group recent 14 days by calendar date
+  const dayMap = {};
+  for (const r of recent14) {
+    const day = r.created_at.slice(0, 10);
+    if (!dayMap[day]) dayMap[day] = { day, whisper: 0, claudeText: 0, claudeVision: 0, formulations: 0 };
+    if (isWhisper(r))        dayMap[day].whisper++;
+    if (isClaudeText(r))     dayMap[day].claudeText++;
+    if (isClaudeVision(r))   dayMap[day].claudeVision++;
+    if (isFormulation(r))    dayMap[day].formulations++;
+  }
+  const byDay = Object.values(dayMap).sort((a, b) => b.day.localeCompare(a.day));
+
+  return { last7: tally(last7), last30: tally(rows), byDay };
+}
+
 async function uploadPhoto(practitioner_id, buffer, mimeType) {
   const ext = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
   const storagePath = `photos/${practitioner_id}/${Date.now()}.${ext}`;
@@ -289,4 +341,5 @@ module.exports = {
   adminGetFormulations,
   adminGetFlagged,
   adminGetCounts,
+  adminGetUsageStats,
 };

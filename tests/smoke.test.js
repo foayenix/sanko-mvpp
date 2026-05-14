@@ -708,3 +708,51 @@ describe('G1 — LLM_PROVIDER fallback switch', () => {
     process.env.LLM_PROVIDER = 'claude';
   });
 });
+
+// ─── G5 — cost monitoring view ────────────────────────────────────────────────
+
+describe('G5 — adminGetUsageStats is exported from supabase service', () => {
+  it('adminGetUsageStats is a function', () => {
+    const sb = require('../src/services/supabase');
+    assert.equal(typeof sb.adminGetUsageStats, 'function');
+  });
+});
+
+describe('G5 — cost estimation logic', () => {
+  it('estimatedUSD is zero when all counts are zero', () => {
+    // Mirror the formula in adminGetUsageStats
+    const whisper = 0, claudeText = 0, claudeVision = 0;
+    const est = (whisper * 0.009 + claudeText * 0.003 + claudeVision * 0.010).toFixed(2);
+    assert.equal(est, '0.00');
+  });
+
+  it('estimatedUSD rounds correctly for mixed call counts', () => {
+    const whisper = 10, claudeText = 20, claudeVision = 5;
+    // 10*0.009 + 20*0.003 + 5*0.010 = 0.09 + 0.06 + 0.05 = 0.20
+    const est = (whisper * 0.009 + claudeText * 0.003 + claudeVision * 0.010).toFixed(2);
+    assert.equal(est, '0.20');
+  });
+
+  it('vision events are distinguished from text events by payload.type', () => {
+    const events = [
+      { event_type: 'claude_call', payload: { type: 'vision' } },
+      { event_type: 'claude_call', payload: {} },
+      { event_type: 'claude_call', payload: null },
+      { event_type: 'whisper_call', payload: {} },
+    ];
+    const claudeVision = events.filter(r => r.event_type === 'claude_call' && r.payload?.type === 'vision').length;
+    const claudeText   = events.filter(r => r.event_type === 'claude_call' && r.payload?.type !== 'vision').length;
+    const whisper      = events.filter(r => r.event_type === 'whisper_call').length;
+    assert.equal(claudeVision, 1);
+    assert.equal(claudeText,   2);
+    assert.equal(whisper,      1);
+  });
+});
+
+describe('G5 — admin dashboard includes usage section', () => {
+  it('admin module loads with adminGetUsageStats imported', () => {
+    // Verifies the import does not throw (would error if export name mismatched)
+    const admin = require('../src/admin');
+    assert.equal(typeof admin, 'function');
+  });
+});

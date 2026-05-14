@@ -4,7 +4,7 @@
 // Bare server-rendered HTML — no frontend framework needed.
 
 const express = require('express');
-const { adminGetCounts, adminGetPractitioners, adminGetFormulations, adminGetFlagged } = require('./services/supabase');
+const { adminGetCounts, adminGetPractitioners, adminGetFormulations, adminGetFlagged, adminGetUsageStats } = require('./services/supabase');
 
 const router = express.Router();
 
@@ -36,15 +36,16 @@ function _challenge(res) {
 
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const [counts, practitioners, formulations, flagged] = await Promise.all([
+    const [counts, practitioners, formulations, flagged, usage] = await Promise.all([
       adminGetCounts(),
       adminGetPractitioners(),
       adminGetFormulations(),
       adminGetFlagged(),
+      adminGetUsageStats(),
     ]);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(_renderPage({ counts, practitioners, formulations, flagged }));
+    res.send(_renderPage({ counts, practitioners, formulations, flagged, usage }));
   } catch (err) {
     console.error('Admin page error:', err.message);
     res.status(500).send(`<pre>Error loading dashboard: ${err.message}</pre>`);
@@ -53,7 +54,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 // ─── HTML renderer ────────────────────────────────────────────────────────────
 
-function _renderPage({ counts, practitioners, formulations, flagged }) {
+function _renderPage({ counts, practitioners, formulations, flagged, usage }) {
   const now = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' });
   return `<!DOCTYPE html>
 <html lang="en">
@@ -157,6 +158,42 @@ function _renderPage({ counts, practitioners, formulations, flagged }) {
   </section>
 
   <section>
+    <h2>Usage &amp; Estimated Cost</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+      ${_usageSummaryCard('Last 7 days', usage.last7)}
+      ${_usageSummaryCard('Last 30 days', usage.last30)}
+    </div>
+
+    <h3 style="font-size:0.85rem;color:#44403c;margin:0 0 0.5rem">Daily breakdown — last 14 days</h3>
+    ${usage.byDay.length === 0
+      ? '<p class="empty">No API events recorded yet.</p>'
+      : `<table>
+          <thead><tr>
+            <th>Date</th>
+            <th>Whisper calls</th>
+            <th>Claude (text)</th>
+            <th>Claude (vision)</th>
+            <th>Formulations saved</th>
+          </tr></thead>
+          <tbody>
+            ${usage.byDay.map(row => `<tr>
+              <td class="meta">${_esc(row.day)}</td>
+              <td>${row.whisper}</td>
+              <td>${row.claudeText}</td>
+              <td>${row.claudeVision}</td>
+              <td>${row.formulations}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`
+    }
+    <p class="meta" style="margin-top:0.75rem">
+      Cost estimates: Whisper ~$0.009/call · Claude text ~$0.003/call · Claude vision ~$0.010/call.
+      Rates are approximate; check OpenAI and Anthropic dashboards for actuals.
+    </p>
+  </section>
+
+  <section>
     <h2>Flagged items</h2>
 
     <h3 style="font-size:0.85rem;color:#44403c;margin:0.75rem 0 0.5rem">Low confidence formulations (${flagged.lowConf.length})</h3>
@@ -208,6 +245,21 @@ function _confBadge(score) {
   const pct = Math.round(score * 100);
   const cls = score >= 0.75 ? 'badge-green' : score >= 0.6 ? 'badge-amber' : 'badge-red';
   return `<span class="badge ${cls}">${pct}%</span>`;
+}
+
+function _usageSummaryCard(label, stats) {
+  return `
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:1rem 1.25rem">
+      <div style="font-size:0.8rem;font-weight:600;color:#166534;margin-bottom:0.6rem;text-transform:uppercase;letter-spacing:0.04em">${_esc(label)}</div>
+      <table style="width:100%;font-size:0.85rem">
+        <tr><td style="color:#44403c">Whisper calls</td><td style="text-align:right;font-weight:600">${stats.whisper}</td></tr>
+        <tr><td style="color:#44403c">Claude text calls</td><td style="text-align:right;font-weight:600">${stats.claudeText}</td></tr>
+        <tr><td style="color:#44403c">Claude vision calls</td><td style="text-align:right;font-weight:600">${stats.claudeVision}</td></tr>
+        <tr><td style="color:#44403c">Formulations saved</td><td style="text-align:right;font-weight:600">${stats.formulations}</td></tr>
+        <tr><td style="color:#44403c">Errors</td><td style="text-align:right;font-weight:600;color:${stats.errors > 0 ? '#991b1b' : '#44403c'}">${stats.errors}</td></tr>
+        <tr style="border-top:1px solid #bbf7d0"><td style="padding-top:0.4rem;color:#166534;font-weight:600">Est. API cost</td><td style="text-align:right;font-weight:700;padding-top:0.4rem;color:#166534">$${_esc(stats.estimatedUSD)}</td></tr>
+      </table>
+    </div>`;
 }
 
 function _renderPayload(payload) {
