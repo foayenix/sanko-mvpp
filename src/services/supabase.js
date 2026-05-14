@@ -165,6 +165,34 @@ async function getSignedMediaUrl(storagePath, expiresIn = 3600) {
   return data.signedUrl;
 }
 
+// Returns a single formulation by its human-readable short_code for a given practitioner
+async function getFormulationByShortCode(short_code, practitioner_id) {
+  const { data, error } = await getClient()
+    .from('formulations')
+    .select('*')
+    .eq('short_code', short_code.toUpperCase())
+    .eq('practitioner_id', practitioner_id)
+    .eq('status', 'active')
+    .single();
+  if (error && error.code !== 'PGRST116') throw new Error(error.message);
+  return data ?? null;
+}
+
+// Overwrites a single JSONB or text field on a formulation row.
+// field must be one of: 'plants', 'preparation', 'dosage', 'notes'
+async function updateFormulationField(id, field, value) {
+  const ALLOWED = new Set(['plants', 'preparation', 'dosage', 'notes', 'condition_local', 'condition_std', 'icd_11_code']);
+  if (!ALLOWED.has(field)) throw new Error(`updateFormulationField: unknown field '${field}'`);
+  const { data, error } = await getClient()
+    .from('formulations')
+    .update({ [field]: value, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 module.exports = {
   getClient,
   logEvent,
@@ -180,5 +208,7 @@ module.exports = {
   saveFormulation,
   listFormulations,
   getFormulation,
+  getFormulationByShortCode,
   getSignedMediaUrl,
+  updateFormulationField,
 };

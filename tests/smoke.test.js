@@ -418,3 +418,97 @@ describe('W6 — vault selection number validation', () => {
     assert.equal(parseInt('3', 10), 3);
   });
 });
+
+// ─── W7 — Flow 5 edit formulation (unit, no real APIs) ───────────────────────
+
+describe('W7 — editFormulation module exports', () => {
+  const ef = require('../src/flows/editFormulation');
+  it('exports handle, resume, and helpers', () => {
+    assert.equal(typeof ef.handle, 'function');
+    assert.equal(typeof ef.resume, 'function');
+    assert.equal(typeof ef._parseShortCode, 'function');
+    assert.equal(typeof ef._toSnapshot, 'function');
+    assert.equal(typeof ef._summariseField, 'function');
+  });
+});
+
+describe('W7 — _parseShortCode', () => {
+  const { _parseShortCode } = require('../src/flows/editFormulation');
+
+  it('parses FM-00034 from "edit FM-00034"', () => {
+    assert.equal(_parseShortCode({ type: 'text', text: { body: 'edit FM-00034' } }), 'FM-00034');
+  });
+
+  it('is case-insensitive — "edit fm-00034" → FM-00034', () => {
+    assert.equal(_parseShortCode({ type: 'text', text: { body: 'edit fm-00034' } }), 'FM-00034');
+  });
+
+  it('returns null when no short code is present', () => {
+    assert.equal(_parseShortCode({ type: 'text', text: { body: 'edit' } }), null);
+  });
+
+  it('returns null for audio message', () => {
+    assert.equal(_parseShortCode({ type: 'audio', audio: { id: 'x' } }), null);
+  });
+});
+
+describe('W7 — _toSnapshot', () => {
+  const { _toSnapshot } = require('../src/flows/editFormulation');
+
+  it('maps DB row to PRD §4.3 JSON shape', () => {
+    const row = {
+      short_code: 'FM-00001',
+      condition_local: 'iba', condition_std: 'Malaria', icd_11_code: '1F40',
+      plants: [{ local_name: 'dongoyaro', botanical: 'Azadirachta indica' }],
+      preparation: { method: 'decoction', duration_minutes: 20, medium: 'water' },
+      dosage: { amount: '1 cup', frequency: 'twice daily', duration_days: 5 },
+      notes: 'avoid in pregnancy',
+      confidence_score: 0.91, original_language: 'yo',
+    };
+    const snap = _toSnapshot(row);
+    assert.equal(snap.formulation_id, 'FM-00001');
+    assert.equal(snap.condition.local_name, 'iba');
+    assert.equal(snap.condition.standardised, 'Malaria');
+    assert.equal(snap.plants[0].botanical, 'Azadirachta indica');
+    assert.equal(snap.preparation.method, 'decoction');
+    assert.equal(snap.dosage.amount, '1 cup');
+  });
+
+  it('handles null fields gracefully', () => {
+    const row = { short_code: 'FM-00002', condition_local: null, condition_std: null,
+      icd_11_code: null, plants: null, preparation: null, dosage: null,
+      notes: null, confidence_score: null, original_language: null };
+    const snap = _toSnapshot(row);
+    assert.deepEqual(snap.plants, []);
+    assert.deepEqual(snap.preparation, {});
+    assert.deepEqual(snap.dosage, {});
+  });
+});
+
+describe('W7 — _summariseField', () => {
+  const { _summariseField } = require('../src/flows/editFormulation');
+
+  it('summarises a plants array', () => {
+    const plants = [
+      { local_name: 'dongoyaro', botanical: 'Azadirachta indica', quantity_normalised: '10 leaves' },
+    ];
+    const s = _summariseField('Plants', plants);
+    assert.ok(s.includes('dongoyaro'));
+    assert.ok(s.includes('Azadirachta indica'));
+    assert.ok(s.includes('10 leaves'));
+  });
+
+  it('summarises a preparation object', () => {
+    const s = _summariseField('Preparation', { method: 'decoction', duration_minutes: 20, medium: 'water' });
+    assert.ok(s.includes('decoction'));
+    assert.ok(s.includes('20 min'));
+    assert.ok(s.includes('water'));
+  });
+
+  it('summarises a dosage object', () => {
+    const s = _summariseField('Dosage', { amount: '1 cup', frequency: 'twice daily', duration_days: 5 });
+    assert.ok(s.includes('1 cup'));
+    assert.ok(s.includes('twice daily'));
+    assert.ok(s.includes('5 days'));
+  });
+});
