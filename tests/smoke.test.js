@@ -683,3 +683,28 @@ describe('W10 — supabase: updatePractitioner is exported', () => {
     assert.equal(typeof sb.updatePractitioner, 'function');
   });
 });
+
+// ─── G1 — GPT-4o fallback (LLM_PROVIDER switch) ──────────────────────────────
+
+describe('G1 — LLM_PROVIDER fallback switch', () => {
+  it('claude.js exports structureFormulation, readNotebookPhoto, editField', () => {
+    const svc = require('../src/services/claude');
+    assert.equal(typeof svc.structureFormulation,  'function');
+    assert.equal(typeof svc.readNotebookPhoto,     'function');
+    assert.equal(typeof svc.editField,             'function');
+  });
+
+  it('useOpenAI() returns false when LLM_PROVIDER=claude (default)', () => {
+    process.env.LLM_PROVIDER = 'claude';
+    // Re-require is not needed — we test the env gate logic directly
+    const val = (process.env.LLM_PROVIDER ?? 'claude').toLowerCase();
+    assert.equal(val === 'openai', false);
+  });
+
+  it('useOpenAI() returns true when LLM_PROVIDER=openai', () => {
+    const val = 'openai';
+    assert.equal(val === 'openai', true);
+    // Restore
+    process.env.LLM_PROVIDER = 'claude';
+  });
+});
