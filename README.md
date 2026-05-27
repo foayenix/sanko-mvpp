@@ -39,6 +39,8 @@ Tests that hit real APIs require all env vars to be set.
 src/
   index.js          Express app + webhook
   router.js         Classify inbound message, dispatch to flows
+  admin.js          /admin — password-protected ops dashboard (PRD §6.4)
+  dashboard.js      /dashboard — public institutional dashboard (PRD §11)
   flows/            One file per user flow (PRD §5)
   services/         whatsapp · whisper · claude · supabase
   prompts/          LLM prompt files (plain text, <800 tokens each)
@@ -75,6 +77,7 @@ tests/
 | G4 | `PRIVACY.md` in repo | ✅ Done |
 | G5 | Cost monitoring view in admin | ✅ Done |
 | W11 | Pilot onboarding (20 HTSN practitioners) | ⬜ Blocked on Meta production WhatsApp number |
-| W12 | Demo video + institutional dashboard | ⬜ Next |
+| W12 | Institutional dashboard at `/dashboard` (public, live counts) | ✅ Done |
+| W12 | Demo video | ⬜ Blocked on W11 (needs real practitioners + production number) |
 
-**Tests**: 74/74 passing · run with `npm test`.
+**Tests**: 83/83 passing · run with `npm test`.

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { handleWebhook, verifyWebhook } = require('./router');
 const adminRouter = require('./admin');
+const dashboardRouter = require('./dashboard');
 
 const app = express();
 app.use(express.json());
@@ -12,6 +13,9 @@ app.post('/webhook', handleWebhook);
 
 // Admin dashboard (PRD §6.4) — HTTP Basic Auth, read-only
 app.use('/admin', adminRouter);
+
+// Institutional dashboard (PRD §11) — public, aggregate counts only
+app.use('/dashboard', dashboardRouter);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

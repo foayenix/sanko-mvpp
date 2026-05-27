@@ -756,3 +756,95 @@ describe('G5 — admin dashboard includes usage section', () => {
     assert.equal(typeof admin, 'function');
   });
 });
+
+// ─── W12 — institutional dashboard ────────────────────────────────────────────
+
+describe('W12 — dashboardGetStats is exported from supabase service', () => {
+  it('dashboardGetStats is a function', () => {
+    const sb = require('../src/services/supabase');
+    assert.equal(typeof sb.dashboardGetStats, 'function');
+  });
+});
+
+describe('W12 — dashboard module loads as an Express router', () => {
+  it('dashboard module exports a router-like function', () => {
+    const dashboard = require('../src/dashboard');
+    assert.equal(typeof dashboard, 'function');
+  });
+
+  it('dashboard exposes _renderPage and _renderSparkline helpers', () => {
+    const dashboard = require('../src/dashboard');
+    assert.equal(typeof dashboard._renderPage, 'function');
+    assert.equal(typeof dashboard._renderSparkline, 'function');
+  });
+});
+
+describe('W12 — dashboard renderPage', () => {
+  const { _renderPage } = require('../src/dashboard');
+
+  it('renders headline counts using the values it is given', () => {
+    const html = _renderPage({
+      practitioners: 17,
+      formulations:  42,
+      byDay:         [{ day: '2026-05-01', count: 3 }],
+      updated_at:    new Date('2026-05-27T12:00:00Z').toISOString(),
+    });
+    assert.match(html, /17/);
+    assert.match(html, /42/);
+    assert.match(html, /Practitioners onboarded/);
+    assert.match(html, /Formulations documented/);
+  });
+
+  it('shows zero counts honestly when no data exists yet', () => {
+    const html = _renderPage({
+      practitioners: 0, formulations: 0, byDay: [], updated_at: new Date().toISOString(),
+    });
+    assert.match(html, />0</);
+    assert.match(html, /No data yet/);
+  });
+
+  it('does NOT leak phone numbers, display names, or transcripts', () => {
+    // Public route — must stay aggregate. If a future change tries to embed a
+    // practitioner list, this test will fail.
+    const html = _renderPage({
+      practitioners: 5, formulations: 12,
+      byDay: [{ day: '2026-05-26', count: 1 }],
+      updated_at: new Date().toISOString(),
+    });
+    assert.doesNotMatch(html, /\+\d{10,}/);   // E.164 phone numbers
+    assert.doesNotMatch(html, /transcript/i);
+    assert.doesNotMatch(html, /display_name/);
+  });
+
+  it('shows the last-updated timestamp in the footer', () => {
+    const html = _renderPage({
+      practitioners: 1, formulations: 1, byDay: [],
+      updated_at: new Date('2026-05-27T14:30:00Z').toISOString(),
+    });
+    assert.match(html, /Last updated/);
+    assert.match(html, /2026/);
+  });
+});
+
+describe('W12 — sparkline rendering', () => {
+  const { _renderSparkline } = require('../src/dashboard');
+
+  it('renders one bar per day, scaled to the max count', () => {
+    const html = _renderSparkline([
+      { day: '2026-05-25', count: 0 },
+      { day: '2026-05-26', count: 5 },
+      { day: '2026-05-27', count: 10 },
+    ]);
+    // 3 bars (use a tight regex so it doesn't also match .bar-axis)
+    assert.equal((html.match(/class="bar(?: has)?"/g) ?? []).length, 3);
+    // Tallest bar reaches 100%
+    assert.match(html, /height:100%/);
+    // Days with count > 0 get the 'has' class (darker green)
+    assert.match(html, /class="bar has"/);
+  });
+
+  it('handles empty input gracefully', () => {
+    const html = _renderSparkline([]);
+    assert.match(html, /No data yet/);
+  });
+});

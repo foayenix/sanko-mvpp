@@ -254,6 +254,48 @@ async function adminGetCounts() {
   return { practitioners: practCount ?? 0, formulations: formCount ?? 0, flagged: flagCount ?? 0 };
 }
 
+// PRD §11 — institutional dashboard. Aggregate-only (no PII, no transcripts) so it
+// can be served on a public route for grant reviewers and visa endorsers.
+async function dashboardGetStats() {
+  const now = Date.now();
+  const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [{ count: practCount }, { count: formCount }, { data: recent }] = await Promise.all([
+    getClient().from('practitioners').select('*', { count: 'exact', head: true }),
+    getClient().from('formulations').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+    getClient()
+      .from('formulations')
+      .select('created_at')
+      .eq('status', 'active')
+      .gte('created_at', since30),
+  ]);
+
+  return {
+    practitioners: practCount ?? 0,
+    formulations: formCount ?? 0,
+    byDay: _bucketByDay(recent ?? [], 30),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+// Builds an array of {day, count} for the last `days` days (oldest first), filling
+// empty days with zero so the sparkline shows real gaps rather than a compressed line.
+function _bucketByDay(rows, days) {
+  const counts = {};
+  for (const r of rows) {
+    const day = r.created_at.slice(0, 10);
+    counts[day] = (counts[day] ?? 0) + 1;
+  }
+  const out = [];
+  const today = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+    const key = d.toISOString().slice(0, 10);
+    out.push({ day: key, count: counts[key] ?? 0 });
+  }
+  return out;
+}
+
 // Returns 7-day and 30-day API-cost event counts plus a 14-day daily breakdown.
 // Estimates USD cost using fixed per-call rates (Whisper ~$0.009, Claude text ~$0.003, Claude vision ~$0.010).
 async function adminGetUsageStats() {
@@ -342,4 +384,5 @@ module.exports = {
   adminGetFlagged,
   adminGetCounts,
   adminGetUsageStats,
+  dashboardGetStats,
 };
