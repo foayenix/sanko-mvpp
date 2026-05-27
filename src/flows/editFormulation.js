@@ -12,7 +12,7 @@
 //
 // Versioning (PRD §5.5): simple overwrite. original_text is never changed.
 
-const { sendTextMessage, sendButtonMessage, downloadMedia } = require('../services/whatsapp');
+const { sendTextMessage, downloadMedia } = require('../services/whatsapp');
 const {
   getFormulationByShortCode,
   updateFormulationField,
@@ -24,9 +24,21 @@ const { setSession, endSession } = require('../utils/session');
 const { transcribe } = require('../services/whisper');
 const { editField } = require('../services/claude');
 
-// Fields the practitioner can edit (PRD §5.5 button list)
+// Fields the practitioner can edit (PRD §5.5)
 const EDIT_FIELDS   = ['Plants', 'Preparation', 'Dosage', 'Notes'];
 const FIELD_TO_COL  = { Plants: 'plants', Preparation: 'preparation', Dosage: 'dosage', Notes: 'notes' };
+
+// WhatsApp interactive buttons support max 3 items — use a numbered text menu instead.
+function _fieldPickerText(header) {
+  return `${header}\n\n${EDIT_FIELDS.map((f, i) => `${i + 1}. ${f}`).join('\n')}\n\nReply with a number or the field name.`;
+}
+
+function _resolveFieldChoice(message) {
+  const raw = _buttonOrText(message).trim();
+  const num = parseInt(raw, 10);
+  if (!isNaN(num) && num >= 1 && num <= EDIT_FIELDS.length) return EDIT_FIELDS[num - 1];
+  return EDIT_FIELDS.find(f => f.toLowerCase() === raw.toLowerCase()) ?? null;
+}
 const FIELD_PROMPTS = {
   Plants:      'Send a voice note (or type) describing the plants — list each one with the quantity.',
   Preparation: 'Send a voice note (or type) describing how it is prepared.',
@@ -58,11 +70,7 @@ async function handle(message, from, practitioner) {
     formulation_snapshot: _toSnapshot(formulation),
   });
 
-  return sendButtonMessage(
-    from,
-    `Editing *${formulation.short_code}*. Which part would you like to change?`,
-    EDIT_FIELDS
-  );
+  return sendTextMessage(from, _fieldPickerText(`Editing *${formulation.short_code}*. Which part would you like to change?`));
 }
 
 // ─── session resume ───────────────────────────────────────────────────────────
@@ -92,14 +100,10 @@ async function resume(session, message, from, practitioner) {
 // ─── step handlers ────────────────────────────────────────────────────────────
 
 async function _handleFieldChoice(message, from, practitioner, context) {
-  const choice = _buttonOrText(message).trim();
+  const choice = _resolveFieldChoice(message);
 
-  if (!FIELD_TO_COL[choice]) {
-    return sendButtonMessage(
-      from,
-      'Please pick one of the fields below.',
-      EDIT_FIELDS
-    );
+  if (!choice) {
+    return sendTextMessage(from, _fieldPickerText('Please pick one of the fields below.'));
   }
 
   await setSession(practitioner.id, 'edit', 'awaiting_correction', { ...context, field: choice });

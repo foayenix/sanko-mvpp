@@ -40,7 +40,19 @@ const EDIT_STEP_FOR = {
   Preparation: 'awaiting_preparation',
   Dosage:      'awaiting_dosage',
 };
-const EDIT_FIELDS = Object.keys(EDIT_STEP_FOR); // used as button labels
+const EDIT_FIELDS = Object.keys(EDIT_STEP_FOR);
+
+// WhatsApp interactive buttons support max 3 items — use a numbered text menu instead.
+function _fieldPickerText(header) {
+  return `${header}\n\n${EDIT_FIELDS.map((f, i) => `${i + 1}. ${f}`).join('\n')}\n\nReply with a number or the field name.`;
+}
+
+function _resolveFieldChoice(message) {
+  const raw = _buttonOrText(message).trim();
+  const num = parseInt(raw, 10);
+  if (!isNaN(num) && num >= 1 && num <= EDIT_FIELDS.length) return EDIT_FIELDS[num - 1];
+  return EDIT_FIELDS.find(f => f.toLowerCase() === raw.toLowerCase()) ?? null;
+}
 
 const CANCEL_WORDS = new Set(['cancel', 'stop', 'quit', 'abort']);
 const MAX_RETRIES = 2;
@@ -165,9 +177,8 @@ async function _handleConfirmation(message, from, practitioner, context) {
   }
 
   if (reply.includes('edit')) {
-    // Field-level edit: show picker — max 4 buttons (WhatsApp limit)
     await setSession(practitioner.id, 'guided_doc', 'awaiting_edit_field_choice', context);
-    return sendButtonMessage(from, 'Which part would you like to change?', EDIT_FIELDS);
+    return sendTextMessage(from, _fieldPickerText('Which part would you like to change?'));
   }
 
   return sendButtonMessage(from, 'Please choose one of the options below.', ['Yes, save', 'Edit', 'Cancel']);
@@ -176,11 +187,11 @@ async function _handleConfirmation(message, from, practitioner, context) {
 // ─── field-level edit ─────────────────────────────────────────────────────────
 
 async function _handleFieldChoice(message, from, practitioner, context) {
-  const choice = _buttonOrText(message).trim();
-  const editStep = EDIT_STEP_FOR[choice];
+  const choice = _resolveFieldChoice(message);
+  const editStep = choice ? EDIT_STEP_FOR[choice] : null;
 
   if (!editStep) {
-    return sendButtonMessage(from, 'Please pick a field to edit.', EDIT_FIELDS);
+    return sendTextMessage(from, _fieldPickerText('Please pick a field to edit.'));
   }
 
   await setSession(practitioner.id, 'guided_doc', `awaiting_edit_${editStep.replace('awaiting_', '')}`, context);
