@@ -17,6 +17,14 @@ app.use('/admin', adminRouter);
 // Institutional dashboard (PRD §11) — public, aggregate counts only
 app.use('/dashboard', dashboardRouter);
 
+app.get('/', (_req, res) => {
+	res.json({
+		service: 'sanko-vault',
+		status: 'ok',
+		endpoints: ['/webhook', '/admin', '/dashboard', '/health']
+	});
+});
+
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;
